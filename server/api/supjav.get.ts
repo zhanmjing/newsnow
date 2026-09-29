@@ -4,9 +4,9 @@ import { buildSupjavItems } from "@shared/supjav"
 const empty: SupjavResponse = {
   capturedAt: null,
   windows: {
-    day: { count: 0, capturedAt: null },
-    week: { count: 0, capturedAt: null },
-    month: { count: 0, capturedAt: null },
+    day: { count: 0, capturedAt: null, items: [] },
+    week: { count: 0, capturedAt: null, items: [] },
+    month: { count: 0, capturedAt: null, items: [] },
   },
   items: [],
 }

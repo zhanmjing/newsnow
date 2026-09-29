@@ -91,9 +91,33 @@ describe("buildSupjavItems", () => {
     expect(res.items[0].ranks).toEqual({ day: 2, week: 5 })
     expect(res.items[0].hits).toBe(2)
     expect(res.capturedAt).toBe("2026-09-29T02:00:00Z")
-    expect(res.windows.day).toEqual({ count: 1, capturedAt: "2026-09-29T01:00:00Z" })
-    expect(res.windows.week).toEqual({ count: 1, capturedAt: "2026-09-29T02:00:00Z" })
-    expect(res.windows.month).toEqual({ count: 0, capturedAt: null })
+    expect(res.windows.day.count).toBe(1)
+    expect(res.windows.day.capturedAt).toBe("2026-09-29T01:00:00Z")
+    expect(res.windows.week.count).toBe(1)
+    expect(res.windows.week.capturedAt).toBe("2026-09-29T02:00:00Z")
+    expect(res.windows.month).toEqual({ count: 0, capturedAt: null, items: [] })
+  })
+
+  it("窗口榜单按名次排序并附带跨榜名次", () => {
+    const res = buildSupjavItems([
+      { window: "day", rank: 2, url: "https://supjav.com/a.html", title: "A", views: 1 },
+      { window: "day", rank: 1, url: "https://supjav.com/b.html", title: "B", views: 2 },
+      { window: "week", rank: 5, url: "https://supjav.com/a.html", title: "A", views: 1 },
+    ])
+    expect(res.windows.day.items.map(i => [i.rank, i.title])).toEqual([[1, "B"], [2, "A"]])
+    expect(res.windows.day.items[1].ranks).toEqual({ day: 2, week: 5 })
+    expect(res.windows.week.items.map(i => [i.rank, i.title])).toEqual([[5, "A"]])
+    expect(res.windows.month.items).toEqual([])
+  })
+
+  it("窗口内重复 URL 保留最佳名次行", () => {
+    const res = buildSupjavItems([
+      { window: "day", rank: 9, url: "https://supjav.com/a.html", title: "A", views: 9 },
+      { window: "day", rank: 3, url: "https://supjav.com/a.html", title: "A2", views: 3 },
+    ])
+    expect(res.windows.day.items).toHaveLength(1)
+    expect(res.windows.day.items[0].rank).toBe(3)
+    expect(res.windows.day.items[0].title).toBe("A2")
   })
 
   it("打分与排序：双榜命中 > 三榜中游 > 单榜季军 > 单榜月冠", () => {
@@ -135,9 +159,9 @@ describe("buildSupjavItems", () => {
     expect(res).toEqual({
       capturedAt: null,
       windows: {
-        day: { count: 0, capturedAt: null },
-        week: { count: 0, capturedAt: null },
-        month: { count: 0, capturedAt: null },
+        day: { count: 0, capturedAt: null, items: [] },
+        week: { count: 0, capturedAt: null, items: [] },
+        month: { count: 0, capturedAt: null, items: [] },
       },
       items: [],
     })

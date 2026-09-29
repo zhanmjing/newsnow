@@ -22,9 +22,20 @@ export interface SupjavItem {
   score: number
 }
 
+export interface SupjavWindowItem {
+  rank: number
+  url: string
+  title: string
+  thumb: string | null
+  views: number | null
+  date: string | null
+  ranks: Partial<Record<SupjavWindow, number>>
+}
+
 export interface SupjavWindowStat {
   count: number
   capturedAt: string | null
+  items: SupjavWindowItem[]
 }
 
 export interface SupjavResponse {
@@ -83,9 +94,9 @@ export function formatViews(views: number | null | undefined): string | undefine
 
 export function buildSupjavItems(rows: SupjavRow[]): SupjavResponse {
   const windows: Record<SupjavWindow, SupjavWindowStat> = {
-    day: { count: 0, capturedAt: null },
-    week: { count: 0, capturedAt: null },
-    month: { count: 0, capturedAt: null },
+    day: { count: 0, capturedAt: null, items: [] },
+    week: { count: 0, capturedAt: null, items: [] },
+    month: { count: 0, capturedAt: null, items: [] },
   }
   const grouped = new Map<string, SupjavRow[]>()
   let capturedAt: string | null = null
@@ -130,5 +141,23 @@ export function buildSupjavItems(rows: SupjavRow[]): SupjavResponse {
   }
 
   items.sort((a, b) => b.score - a.score || (b.views ?? 0) - (a.views ?? 0) || a.url.localeCompare(b.url))
+  for (const item of items) {
+    for (const window of SUPJAV_WINDOWS) {
+      const rank = item.ranks[window]
+      if (rank === undefined) continue
+      windows[window].items.push({
+        rank,
+        url: item.url,
+        title: item.title,
+        thumb: item.thumb,
+        views: item.views,
+        date: item.date,
+        ranks: item.ranks,
+      })
+    }
+  }
+  for (const window of SUPJAV_WINDOWS) {
+    windows[window].items.sort((a, b) => a.rank - b.rank || a.url.localeCompare(b.url))
+  }
   return { capturedAt, windows, items: items.slice(0, TOP_ITEMS) }
 }
