@@ -1,4 +1,5 @@
 export const updatedSourceIds = [
+  "douban-group",
   "smzdm",
   "linuxdo",
   "newsmth",
