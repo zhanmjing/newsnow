@@ -1,5 +1,6 @@
 import type { RankItem, RankResponse, RankWindow, RankWindowItem } from "@shared/rank"
 import { formatViews } from "@shared/rank"
+import { javbunnyThumb } from "@shared/javbunny"
 import { thumbURL } from "@shared/supjav"
 import { tokyomotionThumb } from "@shared/tokyomotion"
 import { createFileRoute } from "@tanstack/react-router"
@@ -11,12 +12,13 @@ export const Route = createFileRoute("/supjav")({
   component: RankComponent,
 })
 
-type SiteId = "supjav" | "tokyomotion"
+type SiteId = "supjav" | "tokyomotion" | "javbunny"
 type SiteTab = "all" | RankWindow
 
 const SITES: Array<{ key: SiteId, label: string, api: string }> = [
   { key: "supjav", label: "Supjav", api: "/supjav" },
   { key: "tokyomotion", label: "TokyoMotion", api: "/tokyomotion" },
+  { key: "javbunny", label: "JavBunny", api: "/javbunny" },
 ]
 
 const TABS: Array<{ key: SiteTab, label: string }> = [
@@ -43,10 +45,17 @@ const SOURCE_URLS: Record<SiteId, Record<RankWindow, string>> = {
     week: "https://www.tokyomotion.net/videos?o=mv&t=w",
     month: "https://www.tokyomotion.net/videos?o=mv&t=m",
   },
+  javbunny: {
+    day: "https://javbunny.com/popular.php?t=1d&lang=ja",
+    week: "https://javbunny.com/popular.php?t=7d&lang=ja",
+    month: "https://javbunny.com/popular.php?t=31d&lang=ja",
+  },
 }
 
 function itemThumb(site: SiteId, base: string | null) {
-  return site === "supjav" ? thumbURL(base) : tokyomotionThumb(base)
+  if (site === "supjav") return thumbURL(base)
+  if (site === "tokyomotion") return tokyomotionThumb(base)
+  return javbunnyThumb(base)
 }
 
 function RankComponent() {
