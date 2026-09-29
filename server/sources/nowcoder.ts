@@ -14,7 +14,7 @@ export default defineSource(async () => {
   const url = `https://gw-c.nowcoder.com/api/sparta/hot-search/top-hot-pc?size=20&_=${timestamp}&t=`
   const res: Res = await myFetch(url)
   return res.data.result
-    .map((k) => {
+    .flatMap((k) => {
       let url, id
       if (k.type === 74) {
         url = `https://www.nowcoder.com/feed/main/detail/${k.uuid}`
@@ -23,10 +23,7 @@ export default defineSource(async () => {
         url = `https://www.nowcoder.com/discuss/${k.id}`
         id = k.id
       }
-      return {
-        id,
-        title: k.title,
-        url,
-      }
+      if (!url || !id) return []
+      return [{ id, title: k.title, url }]
     })
 })
