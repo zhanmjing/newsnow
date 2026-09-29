@@ -36,6 +36,8 @@ export default defineEventHandler(async (event) => {
 
   const ranks = new Set<number>()
   for (const item of body.items) {
+    if (!item || typeof item !== "object")
+      throw createError({ statusCode: 400, message: "Invalid item" })
     if (!Number.isInteger(item.rank) || item.rank < 1 || item.rank > 100)
       throw createError({ statusCode: 400, message: "Invalid rank" })
     if (!item.title || typeof item.title !== "string" || item.title.trim().length < 1 || item.title.length > 500)
