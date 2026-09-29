@@ -6,3 +6,7 @@ compatibility_date = "2024-10-03"
 binding = "NEWSNOW_DB"
 database_name = "newsnow-db"
 database_id = "daa3057e-3c9f-4d6b-b5a4-551fb143b753"
+
+[vars]
+INIT_TABLE = "false"
+ENABLE_CACHE = "true"
