@@ -141,7 +141,8 @@ try {
 try {
   const updatedSourceIds = getUpdatedSourceIds()
   if (updatedSourceIds) {
-    writeFileSync(join(projectDir, "./shared/updated-sources.ts"), `export const updatedSourceIds = ${JSON.stringify(updatedSourceIds, undefined, 2)} as const\n`)
+    const body = JSON.stringify(updatedSourceIds, undefined, 2).replace(/\n\]$/, ",\n]")
+    writeFileSync(join(projectDir, "./shared/updated-sources.ts"), `export const updatedSourceIds = ${body} as const\n`)
     consola.info("Generated updated-sources.ts")
   } else {
     consola.info("Skipped updated-sources.ts")
