@@ -1,5 +1,5 @@
 import process from "node:process"
-import { normalizeTitle, type BangMember } from "@shared/cluster"
+import { type BangMember, normalizeTitle } from "@shared/cluster"
 import { eventIdFromKey, shanghaiDay, shiftDay } from "@shared/history"
 import { ensureHistoryTables, pruneHistory } from "#/database/history"
 
