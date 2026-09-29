@@ -24,6 +24,17 @@ export async function ensureHistoryTables(db: Database) {
     );
   `).run()
   await db.prepare(`CREATE INDEX IF NOT EXISTS idx_event_days_day ON event_days(day);`).run()
+  await db.prepare(`
+    CREATE TABLE IF NOT EXISTS config (
+      k TEXT PRIMARY KEY,
+      v TEXT
+    );
+  `).run()
+}
+
+export async function getConfigValue(db: Database, key: string): Promise<string | undefined> {
+  const row = await db.prepare(`SELECT v FROM config WHERE k = ?`).get(key) as { v?: string } | undefined
+  return row?.v ?? undefined
 }
 
 export async function pruneHistory(db: Database, beforeDay: string): Promise<number> {

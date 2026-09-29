@@ -1,7 +1,7 @@
 import process from "node:process"
 import { type BangMember, normalizeTitle } from "@shared/cluster"
 import { eventIdFromKey, shanghaiDay, shiftDay } from "@shared/history"
-import { ensureHistoryTables, pruneHistory } from "#/database/history"
+import { ensureHistoryTables, getConfigValue, pruneHistory } from "#/database/history"
 
 interface IngestEvent {
   id?: string
@@ -21,11 +21,15 @@ interface IngestBody {
 }
 
 export default defineEventHandler(async (event) => {
-  if (!process.env.INGEST_TOKEN)
-    throw createError({ statusCode: 501, message: "Ingest disabled: INGEST_TOKEN not configured" })
+  const db = useDatabase()
+  await ensureHistoryTables(db)
+
+  const expectedToken = (await getConfigValue(db, "ingest_token")) ?? process.env.INGEST_TOKEN
+  if (!expectedToken)
+    throw createError({ statusCode: 501, message: "Ingest disabled: ingest_token not configured" })
 
   const token = getHeader(event, "x-ingest-token")
-  if (token !== process.env.INGEST_TOKEN)
+  if (token !== expectedToken)
     throw createError({ statusCode: 401, message: "Invalid ingest token" })
 
   const body = await readBody<IngestBody>(event)
@@ -37,9 +41,6 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 413, message: "Payload too large" })
   if (body.events.length > 14)
     throw createError({ statusCode: 413, message: "Too many events per request (max 14)" })
-
-  const db = useDatabase()
-  await ensureHistoryTables(db)
 
   let inserted = 0
   let updated = 0
