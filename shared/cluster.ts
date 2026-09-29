@@ -6,6 +6,8 @@ export interface ClusterInput {
   title: string
   url: string
   pubDate?: number | string
+  info?: string
+  hover?: string
 }
 
 export interface BangMember {
@@ -15,6 +17,8 @@ export interface BangMember {
   title: string
   url: string
   pubDate?: number | string
+  info?: string
+  hover?: string
 }
 
 export interface BangCluster {
@@ -86,6 +90,13 @@ interface WorkingCluster {
   repGrams: Set<string>
   members: ClusterInput[]
   order: number
+}
+
+const TEXT_MAX = 200
+
+function clampText(text: string | false | undefined, max = TEXT_MAX): string | undefined {
+  if (!text) return undefined
+  return text.length > max ? `${text.slice(0, max)}…` : text
 }
 
 export function clusterNews(items: ClusterInput[], options: ClusterOptions = {}): BangCluster[] {
@@ -169,6 +180,8 @@ export function clusterNews(items: ClusterInput[], options: ClusterOptions = {})
         title: m.title,
         url: m.url,
         pubDate: m.pubDate,
+        info: m.info,
+        hover: m.hover,
       })),
     }
   })
@@ -179,7 +192,7 @@ export function clusterNews(items: ClusterInput[], options: ClusterOptions = {})
 export interface BangSourceData {
   id: string
   name: string
-  items: Array<{ title: string, url: string, pubDate?: number | string }>
+  items: Array<{ title: string, url: string, pubDate?: number | string, extra?: { info?: string | false, hover?: string } }>
 }
 
 export function buildBang(sourcesData: BangSourceData[], totalSourceCount: number, options?: ClusterOptions): BangResponse {
@@ -195,6 +208,8 @@ export function buildBang(sourcesData: BangSourceData[], totalSourceCount: numbe
         title: item.title,
         url: item.url,
         pubDate: item.pubDate,
+        info: clampText(item.extra?.info),
+        hover: clampText(item.extra?.hover),
       })
     })
   }

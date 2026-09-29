@@ -241,3 +241,32 @@ describe("buildBang", () => {
     expect(res.meta).toEqual({ okSources: 0, failedSources: 5, itemCount: 0 })
   })
 })
+
+describe("buildBang excerpt and heat", () => {
+  it("carries info and clamps long hover", () => {
+    const long = "字".repeat(300)
+    const res = buildBang([
+      {
+        id: "zhihu",
+        name: "知乎",
+        items: [
+          { title: "事件甲最新进展", url: "u1", extra: { hover: long, info: "139万热度" } },
+        ],
+      },
+    ], 1)
+    const member = res.clusters[0].members[0]
+    expect(member.info).toBe("139万热度")
+    expect(member.hover!.length).toBe(201)
+    expect(member.hover!.endsWith("…")).toBe(true)
+    expect(member.hover!.startsWith("字字")).toBe(true)
+  })
+
+  it("missing extra yields undefined fields", () => {
+    const res = buildBang([
+      { id: "weibo", name: "微博", items: [{ title: "事件乙官方回应", url: "u2" }] },
+    ], 1)
+    const member = res.clusters[0].members[0]
+    expect(member.info).toBeUndefined()
+    expect(member.hover).toBeUndefined()
+  })
+})

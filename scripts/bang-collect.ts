@@ -58,6 +58,8 @@ async function main() {
         rank: m.rank,
         title: m.title,
         url: m.url,
+        info: m.info,
+        hover: m.hover,
       })),
     }
   })
