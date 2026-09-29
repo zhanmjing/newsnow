@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SupjavRouteImport } from './routes/supjav'
 import { Route as BangRouteImport } from './routes/bang'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CColumnRouteImport } from './routes/c.$column'
 
+const SupjavRoute = SupjavRouteImport.update({
+  id: '/supjav',
+  path: '/supjav',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BangRoute = BangRouteImport.update({
   id: '/bang',
   path: '/bang',
@@ -32,35 +38,46 @@ const CColumnRoute = CColumnRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bang': typeof BangRoute
+  '/supjav': typeof SupjavRoute
   '/c/$column': typeof CColumnRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bang': typeof BangRoute
+  '/supjav': typeof SupjavRoute
   '/c/$column': typeof CColumnRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/bang': typeof BangRoute
+  '/supjav': typeof SupjavRoute
   '/c/$column': typeof CColumnRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/bang' | '/c/$column'
+  fullPaths: '/' | '/bang' | '/supjav' | '/c/$column'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/bang' | '/c/$column'
-  id: '__root__' | '/' | '/bang' | '/c/$column'
+  to: '/' | '/bang' | '/supjav' | '/c/$column'
+  id: '__root__' | '/' | '/bang' | '/supjav' | '/c/$column'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BangRoute: typeof BangRoute
+  SupjavRoute: typeof SupjavRoute
   CColumnRoute: typeof CColumnRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/supjav': {
+      id: '/supjav'
+      path: '/supjav'
+      fullPath: '/supjav'
+      preLoaderRoute: typeof SupjavRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/bang': {
       id: '/bang'
       path: '/bang'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BangRoute: BangRoute,
+  SupjavRoute: SupjavRoute,
   CColumnRoute: CColumnRoute,
 }
 export const routeTree = rootRouteImport

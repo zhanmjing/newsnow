@@ -40,6 +40,12 @@ export function NavBar() {
       >
         榜中榜
       </Link>
+      <Link
+        to="/supjav"
+        className="px-2 hover:(bg-primary/10 rounded-md) cursor-pointer transition-all op-70 dark:op-90"
+      >
+        Supjav
+      </Link>
     </span>
   )
 }
