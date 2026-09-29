@@ -85,6 +85,7 @@ interface WorkingCluster {
   rep: ClusterInput
   repGrams: Set<string>
   members: ClusterInput[]
+  order: number
 }
 
 export function clusterNews(items: ClusterInput[], options: ClusterOptions = {}): BangCluster[] {
@@ -104,23 +105,46 @@ export function clusterNews(items: ClusterInput[], options: ClusterOptions = {})
 
   const seenUrls = new Set<string>()
   const clusters: WorkingCluster[] = []
+  const gramIndex = new Map<string, WorkingCluster[]>()
+  const sharedCounts = new Map<WorkingCluster, number>()
+  const candidates: WorkingCluster[] = []
 
   for (const { input, normalized } of prepared) {
     if (seenUrls.has(input.url)) continue
     seenUrls.add(input.url)
     const grams = bigrams(normalized)
 
+    sharedCounts.clear()
+    for (const gram of grams) {
+      const bucket = gramIndex.get(gram)
+      if (!bucket) continue
+      for (const c of bucket) sharedCounts.set(c, (sharedCounts.get(c) ?? 0) + 1)
+    }
+
     let target: WorkingCluster | undefined
-    for (const c of clusters) {
-      if (c.members.length >= maxClusterSize) continue
-      if (areSimilar(c.repGrams, grams, diceThreshold, containmentThreshold)) {
-        target = c
-        break
+    if (sharedCounts.size) {
+      candidates.length = 0
+      for (const [c, shared] of sharedCounts) {
+        if (shared >= 2) candidates.push(c)
+      }
+      if (candidates.length > 1) candidates.sort((a, b) => a.order - b.order)
+      for (const c of candidates) {
+        if (c.members.length >= maxClusterSize) continue
+        if (areSimilar(c.repGrams, grams, diceThreshold, containmentThreshold)) {
+          target = c
+          break
+        }
       }
     }
+
     if (!target) {
-      target = { rep: input, repGrams: grams, members: [] }
+      target = { rep: input, repGrams: grams, members: [], order: clusters.length }
       clusters.push(target)
+      for (const gram of grams) {
+        const bucket = gramIndex.get(gram)
+        if (bucket) bucket.push(target)
+        else gramIndex.set(gram, [target])
+      }
     }
     target.members.push(input)
   }
@@ -130,7 +154,7 @@ export function clusterNews(items: ClusterInput[], options: ClusterOptions = {})
     let score = 0
     for (const m of c.members) {
       const w = weights[m.sourceId] ?? 1
-      score += w * ((m.total - m.rank + 1) / m.total)
+      if (m.total > 0) score += w * ((m.total - m.rank + 1) / m.total)
     }
     score += 0.5 * (sourceIds.size - 1)
     return {
