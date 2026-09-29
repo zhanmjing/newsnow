@@ -1,4 +1,6 @@
 export const updatedSourceIds = [
+  "linuxdo",
+  "newsmth",
   "nodeseek",
   "zhihu-daily",
   "nowcoder",

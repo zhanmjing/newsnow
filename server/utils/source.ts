@@ -11,7 +11,7 @@ export function defineSource(source: SourceGetter | R): SourceGetter | R {
 
 export function defineRSSSource(url: string, option?: SourceOption): SourceGetter {
   return async () => {
-    const data = await rss2json(url)
+    const data = await rss2json(url, { headers: option?.headers })
     if (!data?.items.length) throw new Error("Cannot fetch rss data")
     return data.items.map(item => ({
       title: item.title,

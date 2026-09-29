@@ -350,25 +350,6 @@ export const originSources = {
     type: "hottest",
     home: "https://www.baidu.com",
   },
-  "linuxdo": {
-    name: "LINUX DO",
-    column: "tech",
-    color: "slate",
-    home: "https://linux.do/",
-    disable: true,
-    sub: {
-      latest: {
-        title: "最新",
-        home: "https://linux.do/latest",
-      },
-      hot: {
-        title: "今日最热",
-        type: "hottest",
-        interval: Time.Common,
-        home: "https://linux.do/hot",
-      },
-    },
-  },
   "ghxi": {
     name: "果核剥壳",
     column: "china",
@@ -515,6 +496,24 @@ export const originSources = {
     color: "green",
     interval: Time.Default,
     home: "https://www.nodeseek.com",
+  },
+  "linuxdo": {
+    name: "Linux.do",
+    title: "周热门",
+    type: "hottest",
+    column: "tech",
+    color: "orange",
+    interval: Time.Common,
+    home: "https://linux.do",
+  },
+  "newsmth": {
+    name: "水木社区",
+    title: "十大热门",
+    type: "hottest",
+    column: "china",
+    color: "teal",
+    interval: Time.Common,
+    home: "https://www.newsmth.net",
   },
 } as const satisfies Record<string, OriginSource>
 

@@ -599,5 +599,23 @@
     "home": "https://www.nodeseek.com",
     "color": "green",
     "interval": 600000
+  },
+  "linuxdo": {
+    "title": "周热门",
+    "name": "Linux.do",
+    "type": "hottest",
+    "column": "tech",
+    "home": "https://linux.do",
+    "color": "orange",
+    "interval": 1800000
+  },
+  "newsmth": {
+    "title": "十大热门",
+    "name": "水木社区",
+    "type": "hottest",
+    "column": "china",
+    "home": "https://www.newsmth.net",
+    "color": "teal",
+    "interval": 1800000
   }
 }
