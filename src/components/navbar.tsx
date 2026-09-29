@@ -34,6 +34,12 @@ export function NavBar() {
           {metadata[columnId].name}
         </Link>
       ))}
+      <Link
+        to="/bang"
+        className="px-2 hover:(bg-primary/10 rounded-md) cursor-pointer transition-all op-70 dark:op-90"
+      >
+        榜中榜
+      </Link>
     </span>
   )
 }

@@ -9,9 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as BangRouteImport } from './routes/bang'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CColumnRouteImport } from './routes/c.$column'
 
+const BangRoute = BangRouteImport.update({
+  id: '/bang',
+  path: '/bang',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -25,32 +31,43 @@ const CColumnRoute = CColumnRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bang': typeof BangRoute
   '/c/$column': typeof CColumnRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bang': typeof BangRoute
   '/c/$column': typeof CColumnRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/bang': typeof BangRoute
   '/c/$column': typeof CColumnRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/c/$column'
+  fullPaths: '/' | '/bang' | '/c/$column'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/c/$column'
-  id: '__root__' | '/' | '/c/$column'
+  to: '/' | '/bang' | '/c/$column'
+  id: '__root__' | '/' | '/bang' | '/c/$column'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BangRoute: typeof BangRoute
   CColumnRoute: typeof CColumnRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/bang': {
+      id: '/bang'
+      path: '/bang'
+      fullPath: '/bang'
+      preLoaderRoute: typeof BangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BangRoute: BangRoute,
   CColumnRoute: CColumnRoute,
 }
 export const routeTree = rootRouteImport
