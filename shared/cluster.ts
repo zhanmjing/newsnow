@@ -80,3 +80,74 @@ export function containmentCoefficient(a: Set<string>, b: Set<string>): number {
 export function areSimilar(a: Set<string>, b: Set<string>, diceThreshold = 0.5, containmentThreshold = 0.8): boolean {
   return diceCoefficient(a, b) >= diceThreshold || containmentCoefficient(a, b) >= containmentThreshold
 }
+
+interface WorkingCluster {
+  rep: ClusterInput
+  repGrams: Set<string>
+  members: ClusterInput[]
+}
+
+export function clusterNews(items: ClusterInput[], options: ClusterOptions = {}): BangCluster[] {
+  const {
+    minLength = 4,
+    diceThreshold = 0.5,
+    containmentThreshold = 0.8,
+    maxClusterSize = 20,
+    limit = 100,
+    weights = {},
+  } = options
+
+  const prepared = items
+    .map(input => ({ input, normalized: normalizeTitle(input.title) }))
+    .filter(x => x.normalized.length >= minLength)
+    .sort((a, b) => a.input.rank - b.input.rank)
+
+  const seenUrls = new Set<string>()
+  const clusters: WorkingCluster[] = []
+
+  for (const { input, normalized } of prepared) {
+    if (seenUrls.has(input.url)) continue
+    seenUrls.add(input.url)
+    const grams = bigrams(normalized)
+
+    let target: WorkingCluster | undefined
+    for (const c of clusters) {
+      if (c.members.length >= maxClusterSize) continue
+      if (areSimilar(c.repGrams, grams, diceThreshold, containmentThreshold)) {
+        target = c
+        break
+      }
+    }
+    if (!target) {
+      target = { rep: input, repGrams: grams, members: [] }
+      clusters.push(target)
+    }
+    target.members.push(input)
+  }
+
+  const results: BangCluster[] = clusters.map((c) => {
+    const sourceIds = new Set(c.members.map(m => m.sourceId))
+    let score = 0
+    for (const m of c.members) {
+      const w = weights[m.sourceId] ?? 1
+      score += w * ((m.total - m.rank + 1) / m.total)
+    }
+    score += 0.5 * (sourceIds.size - 1)
+    return {
+      id: c.rep.url,
+      title: c.rep.title,
+      score: Number(score.toFixed(4)),
+      sourceCount: sourceIds.size,
+      members: c.members.map(m => ({
+        sourceId: m.sourceId,
+        sourceName: m.sourceName,
+        rank: m.rank,
+        title: m.title,
+        url: m.url,
+        pubDate: m.pubDate,
+      })),
+    }
+  })
+
+  return results.sort((a, b) => b.score - a.score).slice(0, limit)
+}
