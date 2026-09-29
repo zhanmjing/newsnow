@@ -2,9 +2,9 @@ import process from "node:process"
 import type { RankSiteConfig } from "#/utils/rankApi"
 import { parseRankBody, replaceRankWindow } from "#/utils/rankApi"
 import { ensureHistoryTables, getConfigValue } from "#/database/history"
-import { ensureSupjavTable } from "#/database/supjav"
+import { ensureTokyomotionTable } from "#/database/tokyomotion"
 
-const SITE: RankSiteConfig = { table: "supjav_items", urlHost: "supjav.com", thumbHost: "img.supjav.com" }
+const SITE: RankSiteConfig = { table: "tokyomotion_items", urlHost: "www.tokyomotion.net", thumbHost: "cdn.tokyo-motion.net", hasDuration: true }
 
 export default defineEventHandler(async (event) => {
   const db = useDatabase()
@@ -21,9 +21,9 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const parsed = parseRankBody(body, SITE)
 
-  await ensureSupjavTable(db)
+  await ensureTokyomotionTable(db)
   await replaceRankWindow(db, SITE, parsed.window, parsed.items, parsed.capturedAt)
 
-  logger.success(`supjav ingest ${parsed.window}: ${parsed.items.length} items`)
+  logger.success(`tokyomotion ingest ${parsed.window}: ${parsed.items.length} items`)
   return { ok: true, window: parsed.window, count: parsed.items.length }
 })

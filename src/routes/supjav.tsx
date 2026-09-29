@@ -1,40 +1,67 @@
-import type { SupjavItem, SupjavResponse, SupjavWindow, SupjavWindowItem } from "@shared/supjav"
-import { formatViews, thumbURL } from "@shared/supjav"
+import type { RankItem, RankResponse, RankWindow, RankWindowItem } from "@shared/rank"
+import { formatViews } from "@shared/rank"
+import { thumbURL } from "@shared/supjav"
+import { tokyomotionThumb } from "@shared/tokyomotion"
 import { createFileRoute } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query"
 import { useTitle } from "react-use"
 import { NavBar } from "~/components/navbar"
 
 export const Route = createFileRoute("/supjav")({
-  component: SupjavComponent,
+  component: RankComponent,
 })
 
-type SupjavTab = "all" | SupjavWindow
+type SiteId = "supjav" | "tokyomotion"
+type SiteTab = "all" | RankWindow
 
-const TABS: Array<{ key: SupjavTab, label: string }> = [
+const SITES: Array<{ key: SiteId, label: string, api: string }> = [
+  { key: "supjav", label: "Supjav", api: "/supjav" },
+  { key: "tokyomotion", label: "TokyoMotion", api: "/tokyomotion" },
+]
+
+const TABS: Array<{ key: SiteTab, label: string }> = [
   { key: "all", label: "聚合" },
   { key: "day", label: "日榜" },
   { key: "week", label: "周榜" },
   { key: "month", label: "月榜" },
 ]
 
-const WINDOW_BADGES: Array<{ key: SupjavWindow, label: string, className: string }> = [
+const WINDOW_BADGES: Array<{ key: RankWindow, label: string, className: string }> = [
   { key: "day", label: "日", className: "bg-primary/10 color-primary-6" },
   { key: "week", label: "周", className: "bg-orange-400/10 color-orange-600" },
   { key: "month", label: "月", className: "bg-teal-400/10 color-teal-600" },
 ]
 
-function SupjavComponent() {
-  useTitle("NewsNow | Supjav 榜中榜")
-  const [tab, setTab] = useState<SupjavTab>("all")
+const SOURCE_URLS: Record<SiteId, Record<RankWindow, string>> = {
+  supjav: {
+    day: "https://supjav.com/popular?sort=day",
+    week: "https://supjav.com/popular?sort=week",
+    month: "https://supjav.com/popular?sort=month",
+  },
+  tokyomotion: {
+    day: "https://www.tokyomotion.net/videos?o=mv&t=d",
+    week: "https://www.tokyomotion.net/videos?o=mv&t=w",
+    month: "https://www.tokyomotion.net/videos?o=mv&t=m",
+  },
+}
+
+function itemThumb(site: SiteId, base: string | null) {
+  return site === "supjav" ? thumbURL(base) : tokyomotionThumb(base)
+}
+
+function RankComponent() {
+  const [site, setSite] = useState<SiteId>("supjav")
+  const [tab, setTab] = useState<SiteTab>("all")
+  const siteConfig = SITES.find(s => s.key === site)!
+  useTitle(`NewsNow | ${siteConfig.label} 榜中榜`)
   const { data, isError, isFetching, refetch } = useQuery({
-    queryKey: ["supjav"],
-    queryFn: async () => await myFetch<SupjavResponse>("/supjav"),
+    queryKey: ["rank", site],
+    queryFn: async () => await myFetch<RankResponse>(siteConfig.api),
     staleTime: 1000 * 60 * 5,
     retry: false,
   })
 
-  const list: Array<SupjavItem | SupjavWindowItem> = !data
+  const list: Array<RankItem | RankWindowItem> = !data
     ? []
     : tab === "all"
       ? data.items
@@ -47,13 +74,35 @@ function SupjavComponent() {
       </div>
       <div className="w-full max-w-900px flex flex-col gap-4">
         <div className="flex items-center justify-between px-2">
-          <span className="text-xl font-bold">Supjav 榜中榜</span>
+          <span className="text-xl font-bold">
+            {siteConfig.label}
+            {" "}
+            榜中榜
+          </span>
           <button
             type="button"
             title="Refresh"
             className={$("btn i-ph:arrow-counter-clockwise-duotone", isFetching && "animate-spin i-ph:circle-dashed-duotone")}
             onClick={() => refetch()}
           />
+        </div>
+
+        <div className="flex gap-2 px-2 text-base font-bold">
+          {SITES.map(s => (
+            <button
+              key={s.key}
+              type="button"
+              className={$(
+                "px-4 py-1.5 rounded-full transition-all cursor-pointer",
+                site === s.key
+                  ? "bg-primary/25 color-primary-6 shadow shadow-primary/20"
+                  : "bg-neutral-400/10 op-60 hover:bg-neutral-400/20",
+              )}
+              onClick={() => setSite(s.key)}
+            >
+              {s.label}
+            </button>
+          ))}
         </div>
 
         <div className="flex gap-2 px-2 text-sm">
@@ -91,7 +140,7 @@ function SupjavComponent() {
             <li key={item.url} className="rounded-2xl p-3 bg-neutral-400/10 flex gap-3">
               <span className="min-w-8 text-center text-lg font-bold color-primary-6 self-center">{i + 1}</span>
               <img
-                src={thumbURL(item.thumb)}
+                src={itemThumb(site, item.thumb)}
                 loading="lazy"
                 alt=""
                 className="aspect-video w-32 rounded-lg object-cover bg-neutral-400/10 shrink-0"
@@ -118,6 +167,9 @@ function SupjavComponent() {
                       {`${b.label}#${item.ranks[b.key]}`}
                     </span>
                   ))}
+                  {item.duration && (
+                    <span className="px-1.5 py-0.5 rounded bg-neutral-400/10">{item.duration}</span>
+                  )}
                   {formatViews(item.views) && (
                     <span className="px-1.5 py-0.5 rounded bg-neutral-400/10">{formatViews(item.views)}</span>
                   )}
@@ -126,6 +178,17 @@ function SupjavComponent() {
             </li>
           ))}
         </ol>
+
+        {tab !== "all" && (
+          <a
+            href={SOURCE_URLS[site][tab]}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-center text-sm op-60 hover:op-100 hover:underline pb-4"
+          >
+            在源站翻页查看更多 →
+          </a>
+        )}
       </div>
     </div>
   )
