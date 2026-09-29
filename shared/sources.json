@@ -441,15 +441,6 @@
     "color": "blue",
     "interval": 600000
   },
-  "smzdm": {
-    "title": "今日热门",
-    "name": "什么值得买",
-    "type": "hottest",
-    "column": "shopping",
-    "home": "https://www.smzdm.com",
-    "color": "red",
-    "interval": 1800000
-  },
   "nowcoder": {
     "name": "牛客",
     "type": "hottest",
@@ -599,23 +590,6 @@
     "column": "china",
     "home": "https://daily.zhihu.com",
     "color": "blue",
-    "interval": 1800000
-  },
-  "nodeseek": {
-    "name": "NodeSeek",
-    "type": "realtime",
-    "column": "tech",
-    "home": "https://www.nodeseek.com",
-    "color": "green",
-    "interval": 600000
-  },
-  "linuxdo": {
-    "title": "周热门",
-    "name": "Linux.do",
-    "type": "hottest",
-    "column": "tech",
-    "home": "https://linux.do",
-    "color": "orange",
     "interval": 1800000
   },
   "newsmth": {

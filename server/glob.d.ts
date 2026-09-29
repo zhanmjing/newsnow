@@ -31,7 +31,6 @@ declare module 'glob:./sources/{*.ts,**/index.ts}' {
     "linuxdo": typeof import('./sources/linuxdo')
     "mktnews": typeof import('./sources/mktnews')
     "newsmth": typeof import('./sources/newsmth')
-    "nodeseek": typeof import('./sources/nodeseek')
     "nowcoder": typeof import('./sources/nowcoder')
     "pcbeta": typeof import('./sources/pcbeta')
     "producthunt": typeof import('./sources/producthunt')
