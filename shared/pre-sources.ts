@@ -500,6 +500,22 @@ export const originSources = {
       },
     },
   },
+  "zhihu-daily": {
+    name: "知乎日报",
+    type: "hottest",
+    column: "china",
+    color: "blue",
+    interval: Time.Common,
+    home: "https://daily.zhihu.com",
+  },
+  "nodeseek": {
+    name: "NodeSeek",
+    type: "realtime",
+    column: "tech",
+    color: "green",
+    interval: Time.Default,
+    home: "https://www.nodeseek.com",
+  },
 } as const satisfies Record<string, OriginSource>
 
 export function genSources() {

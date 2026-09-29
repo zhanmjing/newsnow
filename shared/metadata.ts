@@ -31,6 +31,9 @@ export const columns = {
   updated: {
     zh: "更新",
   },
+  shopping: {
+    zh: "购物",
+  },
 } as const
 
 const updatedSourceIds = [..._updatedSourceIds] as SourceID[]

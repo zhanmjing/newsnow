@@ -583,5 +583,21 @@
     "color": "green",
     "interval": 1800000,
     "title": "热播榜"
+  },
+  "zhihu-daily": {
+    "name": "知乎日报",
+    "type": "hottest",
+    "column": "china",
+    "home": "https://daily.zhihu.com",
+    "color": "blue",
+    "interval": 1800000
+  },
+  "nodeseek": {
+    "name": "NodeSeek",
+    "type": "realtime",
+    "column": "tech",
+    "home": "https://www.nodeseek.com",
+    "color": "green",
+    "interval": 600000
   }
 }
