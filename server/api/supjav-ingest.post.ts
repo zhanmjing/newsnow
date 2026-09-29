@@ -1,6 +1,7 @@
 import process from "node:process"
 import type { SupjavWindow } from "@shared/supjav"
 import { hasHost, isSupjavWindow } from "@shared/supjav"
+import { ensureHistoryTables, getConfigValue } from "#/database/history"
 import { ensureSupjavTable } from "#/database/supjav"
 
 interface IngestItem {
@@ -19,11 +20,15 @@ interface IngestBody {
 }
 
 export default defineEventHandler(async (event) => {
-  if (!process.env.INGEST_TOKEN)
-    throw createError({ statusCode: 501, message: "Ingest disabled: INGEST_TOKEN not configured" })
+  const db = useDatabase()
+  await ensureHistoryTables(db)
+
+  const expectedToken = (await getConfigValue(db, "ingest_token")) ?? process.env.INGEST_TOKEN
+  if (!expectedToken)
+    throw createError({ statusCode: 501, message: "Ingest disabled: ingest_token not configured" })
 
   const token = getHeader(event, "x-ingest-token")
-  if (token !== process.env.INGEST_TOKEN)
+  if (token !== expectedToken)
     throw createError({ statusCode: 401, message: "Invalid ingest token" })
 
   const body = await readBody<IngestBody>(event)
@@ -55,7 +60,6 @@ export default defineEventHandler(async (event) => {
     ? body.capturedAt
     : new Date().toISOString()
 
-  const db = useDatabase()
   await ensureSupjavTable(db)
   await db.prepare(`DELETE FROM supjav_items WHERE window = ?`).run(body.window)
   for (const item of body.items) {
