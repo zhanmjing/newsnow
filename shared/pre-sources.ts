@@ -359,11 +359,12 @@ export const originSources = {
   },
   "smzdm": {
     name: "什么值得买",
-    column: "china",
-    color: "red",
+    title: "今日热门",
     type: "hottest",
+    column: "shopping",
+    color: "red",
+    interval: Time.Common,
     home: "https://www.smzdm.com",
-    disable: true,
   },
   "nowcoder": {
     name: "牛客",
@@ -514,6 +515,15 @@ export const originSources = {
     color: "teal",
     interval: Time.Common,
     home: "https://www.newsmth.net",
+  },
+  "douban-group": {
+    name: "豆瓣",
+    title: "讨论精选",
+    type: "hottest",
+    column: "china",
+    color: "green",
+    interval: Time.Common,
+    home: "https://www.douban.com/group/explore",
   },
 } as const satisfies Record<string, OriginSource>
 

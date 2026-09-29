@@ -11,6 +11,7 @@ declare module 'glob:./sources/{*.ts,**/index.ts}' {
     "cls": typeof import('./sources/cls/index')
     "coolapk": typeof import('./sources/coolapk/index')
     "dongqiudi": typeof import('./sources/dongqiudi')
+    "douban-group": typeof import('./sources/douban-group')
     "douban": typeof import('./sources/douban')
     "douyin": typeof import('./sources/douyin')
     "fastbull": typeof import('./sources/fastbull')

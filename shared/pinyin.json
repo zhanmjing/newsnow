@@ -39,6 +39,7 @@
   "kaopu": "kaopuxinwen",
   "jin10": "jinshishuju",
   "baidu": "baiduresou",
+  "smzdm": "shenmezhidemai-jinriremen",
   "nowcoder": "niuke",
   "sspai": "shaoshupai",
   "juejin": "xitujuejin",
@@ -54,5 +55,6 @@
   "zhihu-daily": "zhihuribao",
   "nodeseek": "NodeSeek",
   "linuxdo": "Linux.do-zhouremen",
-  "newsmth": "shuimushequ-shidaremen"
+  "newsmth": "shuimushequ-shidaremen",
+  "douban-group": "douban-taolunjingxuan"
 }
