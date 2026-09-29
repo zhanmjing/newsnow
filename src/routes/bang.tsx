@@ -1,4 +1,7 @@
+import type { SourceID, SourceResponse } from "@shared/types"
 import type { BangResponse } from "@shared/cluster"
+import { sources } from "@shared/sources"
+import { buildBang } from "@shared/cluster"
 import { createFileRoute } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query"
 import { useTitle } from "react-use"
@@ -8,11 +11,24 @@ export const Route = createFileRoute("/bang")({
   component: BangComponent,
 })
 
+const allSourceIds = (Object.keys(sources) as SourceID[]).filter(id => !sources[id]?.redirect)
+
 function BangComponent() {
   useTitle("NewsNow | 榜中榜")
   const { data, isFetching, isError, refetch } = useQuery({
     queryKey: ["bang"],
-    queryFn: async () => await myFetch<BangResponse>("/bang"),
+    queryFn: async () => {
+      const rows: SourceResponse[] | undefined = await myFetch("/s/entire", {
+        method: "POST",
+        body: { sources: allSourceIds },
+      })
+      const data = (rows ?? []).map(row => ({
+        id: row.id,
+        name: sources[row.id]?.name ?? row.id,
+        items: row.items,
+      }))
+      return buildBang(data, allSourceIds.length) as BangResponse
+    },
     staleTime: 1000 * 60 * 5,
     retry: false,
   })

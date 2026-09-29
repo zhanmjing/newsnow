@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { areSimilar, bigrams, clusterNews, containmentCoefficient, diceCoefficient, normalizeTitle } from "./cluster"
+import { areSimilar, bigrams, buildBang, clusterNews, containmentCoefficient, diceCoefficient, normalizeTitle } from "./cluster"
 import type { ClusterInput } from "./cluster"
 
 describe("normalizeTitle", () => {
@@ -219,5 +219,25 @@ describe("clusterNews 规模性能", () => {
 
     const known = clusters.find(c => c.members.some(m => m.title === items[0].title))
     expect(known?.sourceCount ?? 0).toBeGreaterThanOrEqual(4)
+  })
+})
+
+describe("buildBang", () => {
+  it("maps ranks and meta", () => {
+    const res = buildBang([
+      { id: "zhihu", name: "知乎", items: [{ title: "事件甲最新进展", url: "u1" }, { title: "事件乙官方回应", url: "u2" }] },
+      { id: "weibo", name: "微博", items: [{ title: "事件甲最新进展", url: "u3" }] },
+    ], 5)
+    expect(res.status).toBe("success")
+    expect(res.meta).toEqual({ okSources: 2, failedSources: 3, itemCount: 3 })
+    expect(res.clusters.length).toBe(2)
+    expect(res.clusters[0].sourceCount).toBe(2)
+    expect(res.clusters[0].members.map(m => m.rank).sort()).toEqual([1, 1])
+  })
+
+  it("empty rows -> empty clusters and all failed", () => {
+    const res = buildBang([], 5)
+    expect(res.clusters.length).toBe(0)
+    expect(res.meta).toEqual({ okSources: 0, failedSources: 5, itemCount: 0 })
   })
 })

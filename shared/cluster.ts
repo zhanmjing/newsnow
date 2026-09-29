@@ -175,3 +175,37 @@ export function clusterNews(items: ClusterInput[], options: ClusterOptions = {})
 
   return results.sort((a, b) => b.score - a.score).slice(0, limit)
 }
+
+export interface BangSourceData {
+  id: string
+  name: string
+  items: Array<{ title: string, url: string, pubDate?: number | string }>
+}
+
+export function buildBang(sourcesData: BangSourceData[], totalSourceCount: number, options?: ClusterOptions): BangResponse {
+  const items: ClusterInput[] = []
+  for (const source of sourcesData) {
+    const total = source.items.length
+    source.items.forEach((item, i) => {
+      items.push({
+        sourceId: source.id,
+        sourceName: source.name,
+        rank: i + 1,
+        total,
+        title: item.title,
+        url: item.url,
+        pubDate: item.pubDate,
+      })
+    })
+  }
+  return {
+    status: "success",
+    updatedTime: Date.now(),
+    clusters: clusterNews(items, options),
+    meta: {
+      okSources: sourcesData.length,
+      failedSources: totalSourceCount - sourcesData.length,
+      itemCount: items.length,
+    },
+  }
+}
