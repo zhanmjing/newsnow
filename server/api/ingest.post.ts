@@ -35,6 +35,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: "Invalid day" })
   if (JSON.stringify(body).length > 1_000_000)
     throw createError({ statusCode: 413, message: "Payload too large" })
+  if (body.events.length > 14)
+    throw createError({ statusCode: 413, message: "Too many events per request (max 14)" })
 
   const db = useDatabase()
   await ensureHistoryTables(db)
@@ -48,7 +50,7 @@ export default defineEventHandler(async (event) => {
     const existing = await db.prepare(`SELECT id FROM events WHERE id = ?`).get(id)
     if (existing) {
       await db.prepare(`
-        UPDATE events SET title = ?, url = ?, last_day = ?, best_rank = CASE WHEN best_rank IS NULL OR best_rank > ? THEN ? ELSE best_rank END, top_source = ? WHERE id = ?
+        UPDATE events SET title = ?, url = ?, last_day = MAX(last_day, ?), best_rank = CASE WHEN best_rank IS NULL OR best_rank > ? THEN ? ELSE best_rank END, top_source = ? WHERE id = ?
       `).run(item.title, item.url, body.day, item.bestRank, item.bestRank, item.topSource, id)
       updated++
     } else {

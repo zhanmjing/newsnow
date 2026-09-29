@@ -70,12 +70,22 @@ async function main() {
   }
 
   if (!TOKEN) throw new Error("INGEST_TOKEN is not set")
-  const result = await api("/api/ingest", {
-    method: "POST",
-    headers: { "x-ingest-token": TOKEN },
-    body: { day, events },
-  })
-  console.log("ingest result:", JSON.stringify(result))
+  const CHUNK_SIZE = 12
+  let inserted = 0
+  let updated = 0
+  let pruned = 0
+  for (let i = 0; i < events.length; i += CHUNK_SIZE) {
+    const chunk = events.slice(i, i + CHUNK_SIZE)
+    const result = await api<{ ok: boolean, inserted: number, updated: number, pruned: number }>("/api/ingest", {
+      method: "POST",
+      headers: { "x-ingest-token": TOKEN },
+      body: { day, events: chunk },
+    })
+    inserted += result.inserted
+    updated += result.updated
+    pruned += result.pruned
+  }
+  console.log("ingest result:", JSON.stringify({ ok: true, inserted, updated, pruned }))
 }
 
 main().catch((e) => {
