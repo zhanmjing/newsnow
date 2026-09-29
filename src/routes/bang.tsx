@@ -1,5 +1,5 @@
 import type { SourceID, SourceResponse } from "@shared/types"
-import type { BangResponse } from "@shared/cluster"
+import type { BangMember, BangResponse } from "@shared/cluster"
 import type { BangWindow, BangWindowResponse } from "@shared/history"
 import { sources } from "@shared/sources"
 import { buildBang } from "@shared/cluster"
@@ -22,6 +22,15 @@ const TABS: Array<{ key: "live" | BangWindow, label: string }> = [
 ]
 
 const WINDOW_SPAN: Record<BangWindow, number> = { day: 1, week: 7, month: 30 }
+
+function excerptOf(members: BangMember[]): string | undefined {
+  return members.find(m => m.hover)?.hover
+}
+
+function heatOf(members: BangMember[]): string | undefined {
+  const info = members[0]?.info
+  return typeof info === "string" && info ? info : undefined
+}
 
 function BangComponent() {
   useTitle("NewsNow | 榜中榜")
@@ -132,12 +141,20 @@ function BangComponent() {
                       >
                         {c.title}
                       </a>
+                      {excerptOf(c.members) && (
+                        <p className="text-sm op-60 line-clamp-2">
+                          {excerptOf(c.members)}
+                        </p>
+                      )}
                       <div className="flex flex-wrap gap-1 text-xs op-70">
                         {c.members.map(m => (
                           <span key={`${m.sourceId}-${m.rank}`} className="px-1.5 py-0.5 rounded bg-neutral-400/10">
                             {`${m.sourceName} #${m.rank}`}
                           </span>
                         ))}
+                      </div>
+                      <div className="text-xs op-50">
+                        {[c.members[0]?.sourceName, heatOf(c.members)].filter(Boolean).join(" · ")}
                       </div>
                     </div>
                   </li>
@@ -168,6 +185,11 @@ function BangComponent() {
                           </span>
                         )}
                       </div>
+                      {excerptOf(item.members) && (
+                        <p className="text-sm op-60 line-clamp-2">
+                          {excerptOf(item.members)}
+                        </p>
+                      )}
                       <div className="flex flex-wrap gap-1 text-xs op-70">
                         {item.members.map(m => (
                           <span key={`${m.sourceId}-${m.rank}`} className="px-1.5 py-0.5 rounded bg-neutral-400/10">
@@ -176,7 +198,8 @@ function BangComponent() {
                         ))}
                       </div>
                       <div className="text-xs op-50">
-                        {`${item.sourceCount} 源命中 · 最佳 #${item.bestRank} · 代表源 ${item.topSource}`}
+                        {[item.topSource, heatOf(item.members)].filter(Boolean).join(" · ")}
+                        {` · ${item.sourceCount} 源命中 · 最佳 #${item.bestRank}`}
                       </div>
                     </div>
                   </li>
