@@ -14,3 +14,5 @@ imports.app.d.ts
 package-lock.json
 .specstory/vr/
 vr/
+tools/supjav.local.json
+tools/supjav.log

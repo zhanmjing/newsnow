@@ -1,0 +1,7 @@
+{
+  "baseUrl": "https://newsnow-cyb.pages.dev",
+  "token": "REPLACE_WITH_INGEST_TOKEN",
+  "chromePath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "proxy": "http://127.0.0.1:7890",
+  "headless": true
+}
