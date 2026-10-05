@@ -141,7 +141,7 @@ function RankComponent() {
         {isError && <div className="text-center op-70 py-10">接口异常，稍后重试</div>}
 
         {data && !list.length && (
-          <div className="text-center op-70 py-10">暂无数据：等待本机采集上传（每 6 小时更新）</div>
+          <div className="text-center op-70 py-10">暂无数据：等待本机采集上传（每 24 小时更新）</div>
         )}
 
         <ol className="flex flex-col gap-3">
